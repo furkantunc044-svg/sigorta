@@ -239,10 +239,12 @@ export default function SlideEditor({
                 <Sliders className="w-3.5 h-3.5 text-[#F05A28]" />
                 <span>İçerik Düzeni</span>
               </label>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-2 gap-1.5">
                 {[
                   { id: 'standard', label: 'Standart', icon: FileText },
+                  { id: 'metrics', label: 'Vurgu Rakamlı', icon: Sliders },
                   { id: 'list', label: 'Maddeli', icon: ListOrdered },
+                  { id: 'f3_cover', label: 'F3 Foto Kapak', icon: ImageIcon },
                   { id: 'cta', label: 'Eyleme Çağrı', icon: MousePointerClick },
                 ].map((lt) => {
                   const isSelected = (currentSlide.layoutType || 'standard') === lt.id;
@@ -262,6 +264,12 @@ export default function SlideEditor({
                         }
                         if (lt.id === 'cta' && !currentSlide.ctaText) {
                           updateActiveSlide('ctaText', 'Teklif için bize ulaşın');
+                        }
+                        if (lt.id === 'metrics') {
+                          if (!currentSlide.stat1Number) updateActiveSlide('stat1Number', '%100');
+                          if (!currentSlide.stat1Text) updateActiveSlide('stat1Text', 'Tam kapsamlı hasar ve parça onarım güvencesi');
+                          if (!currentSlide.stat2Number) updateActiveSlide('stat2Number', '7/24');
+                          if (!currentSlide.stat2Text) updateActiveSlide('stat2Text', 'Kesintisiz yol yardım ve ikame araç desteği');
                         }
                       }}
                       className={`py-1.5 px-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1 transition ${
@@ -375,6 +383,51 @@ export default function SlideEditor({
                   placeholder="Teklif için bize ulaşın"
                   className="w-full px-3 py-1.5 text-xs bg-slate-900 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#F05A28]"
                 />
+              </div>
+            )}
+
+            {/* VURGU RAKAMLARI (METRICS LAYOUT İÇİN) */}
+            {currentSlide.layoutType === 'metrics' && (
+              <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-lg space-y-3">
+                <span className="text-xs font-semibold text-slate-300">Vurgu Bloğu Ayarları</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[11px] text-slate-400 block mb-1">1. Rakam / İfade</label>
+                    <input
+                      type="text"
+                      value={currentSlide.stat1Number || '%100'}
+                      onChange={(e) => updateActiveSlide('stat1Number', e.target.value)}
+                      className="w-full px-2.5 py-1.5 text-xs bg-slate-950 border border-slate-700 rounded text-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-400 block mb-1">2. Rakam / İfade</label>
+                    <input
+                      type="text"
+                      value={currentSlide.stat2Number || '7/24'}
+                      onChange={(e) => updateActiveSlide('stat2Number', e.target.value)}
+                      className="w-full px-2.5 py-1.5 text-xs bg-slate-950 border border-slate-700 rounded text-slate-100"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-400 block mb-1">1. Rakam Açıklaması</label>
+                  <input
+                    type="text"
+                    value={currentSlide.stat1Text || ''}
+                    onChange={(e) => updateActiveSlide('stat1Text', e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-950 border border-slate-700 rounded text-slate-100"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-400 block mb-1">2. Rakam Açıklaması</label>
+                  <input
+                    type="text"
+                    value={currentSlide.stat2Text || ''}
+                    onChange={(e) => updateActiveSlide('stat2Text', e.target.value)}
+                    className="w-full px-2.5 py-1.5 text-xs bg-slate-950 border border-slate-700 rounded text-slate-100"
+                  />
+                </div>
               </div>
             )}
 

@@ -48,49 +48,55 @@ const CanvasPreview = forwardRef(({
   // Exact Brand Color Palette directly sampled from official image files
   const themeStyles = {
     cream: {
-      bg: '#FAF9F5', // Sampled RGB(250, 249, 245)
-      headerText: '#08132F',
-      divider: '#E5E1D8', // Sampled divider line RGB(236, 232, 223)
-      preheading: '#F05A28', // Orange #F05A28 = RGB(240, 90, 40)
-      title: '#08132F', // Sampled title color RGB(8, 19, 47)
-      subtitle: '#445569', // Sampled body text RGB(68, 85, 105)
-      listItemText: '#08132F',
-      listDivider: '#E4DFD3',
-      footerWeb: '#08132F', // Sampled website text on cream = dark navy #08132F
-      logoVariant: 'dark',
-      badgeColor: '#08132F',
-      ctaBg: '#F05A28',
-      ctaText: '#FFFFFF'
+      bg: '#FAF9F6', // Off-white/cream paper
+      headerText: '#00194C',
+      divider: 'rgba(0, 25, 76, 0.12)',
+      preheading: '#F37121',
+      title: '#00194C',
+      subtitle: '#334E68',
+      listItemText: '#00194C',
+      listDivider: 'rgba(0, 25, 76, 0.12)',
+      footerWeb: '#00194C',
+      logoVariant: 'light', // light variant uses artse-official-light.png on white
+      badgeColor: '#00194C',
+      ctaBg: '#F37121',
+      ctaText: '#FFFFFF',
+      statNumber: '#F37121',
+      statDesc: '#334E68'
     },
     navy: {
-      bg: navyBgColor, // Sampled exact RGB(0, 25, 76)
-      headerText: '#E6EDF5',
-      divider: 'rgba(255, 255, 255, 0.16)', // Sampled divider RGB(41, 68, 115)
-      preheading: '#FF7A29',
+      bg: '#00194C', // Exact deep navy
+      headerText: '#B3CCFF',
+      divider: 'rgba(255, 255, 255, 0.14)',
+      preheading: '#F8AB7C',
       title: '#FFFFFF',
-      subtitle: '#CAD5E2',
+      subtitle: '#B3CCFF',
       listItemText: '#FFFFFF',
       listDivider: 'rgba(255, 255, 255, 0.14)',
-      footerWeb: '#8CA3C7', // Sampled exact ice-slate blue RGB(140, 163, 199)
-      logoVariant: 'light',
-      badgeColor: '#E6EDF5',
-      ctaBg: '#E67330',
-      ctaText: '#FFFFFF'
+      footerWeb: '#B3CCFF', // Light blue URL
+      logoVariant: 'dark', // dark variant uses artse-official-dark.png on navy
+      badgeColor: '#B3CCFF',
+      ctaBg: '#F37121',
+      ctaText: '#FFFFFF',
+      statNumber: '#F8AB7C', // Peach accent number on dark
+      statDesc: '#B3CCFF'
     },
     anthracite: {
-      bg: '#0D1117',
-      headerText: '#E2E8F0',
-      divider: 'rgba(255, 255, 255, 0.12)',
-      preheading: '#FF7A29',
-      title: '#F8FAFC',
-      subtitle: '#94A3B8',
-      listItemText: '#F8FAFC',
-      listDivider: 'rgba(255, 255, 255, 0.12)',
-      footerWeb: '#8CA3C7',
-      logoVariant: 'light',
-      badgeColor: '#CBD5E1',
-      ctaBg: '#E67330',
-      ctaText: '#FFFFFF'
+      bg: '#003E73', // Secondary brand blue
+      headerText: '#B3CCFF',
+      divider: 'rgba(255, 255, 255, 0.14)',
+      preheading: '#F8AB7C',
+      title: '#FFFFFF',
+      subtitle: '#B3CCFF',
+      listItemText: '#FFFFFF',
+      listDivider: 'rgba(255, 255, 255, 0.14)',
+      footerWeb: '#B3CCFF',
+      logoVariant: 'dark',
+      badgeColor: '#B3CCFF',
+      ctaBg: '#F37121',
+      ctaText: '#FFFFFF',
+      statNumber: '#F8AB7C',
+      statDesc: '#B3CCFF'
     }
   };
 
@@ -123,6 +129,8 @@ const CanvasPreview = forwardRef(({
     ? (Array.isArray(slide.listItems) ? slide.listItems : slide.listItems.split('\n').filter(Boolean))
     : [];
 
+  const isF3Cover = slide.layoutType === 'f3_cover';
+
   return (
     <div
       ref={ref}
@@ -130,12 +138,26 @@ const CanvasPreview = forwardRef(({
       style={{
         width: `${canvasWidth}px`,
         height: `${canvasHeight}px`,
-        backgroundColor: currentTheme.bg,
+        backgroundColor: isF3Cover ? '#FAF9F6' : currentTheme.bg,
       }}
       className="relative flex flex-col justify-between px-[85px] pt-[56px] pb-0 select-none overflow-hidden transition-colors duration-300"
     >
-      {/* Background Graphic Overlay if image specified */}
-      {slide.image && (
+      {/* F3 Fotoğraflı Kart: Üst 520 px Tam Genişlik Kadraj */}
+      {isF3Cover && slide.image && (
+        <div 
+          className="absolute top-0 left-0 w-full h-[520px] overflow-hidden pointer-events-none"
+        >
+          <img 
+            src={slide.image} 
+            alt="Endüstriyel Sahne" 
+            className="w-full h-full object-cover" 
+            style={{ objectPosition: '50% 42%' }}
+          />
+        </div>
+      )}
+
+      {/* Background Graphic Overlay if image specified (standart kartlar için) */}
+      {!isF3Cover && slide.image && (
         <div 
           className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-20 mix-blend-luminosity"
           style={{ backgroundImage: `url(${slide.image})` }}
@@ -143,7 +165,10 @@ const CanvasPreview = forwardRef(({
       )}
 
       {/* 1. TOP HEADER SECTION */}
-      <div className="relative z-10 w-full">
+      <div 
+        className="relative z-10 w-full"
+        style={{ marginTop: isF3Cover ? '500px' : '0px' }}
+      >
         <div 
           className="flex items-center justify-between pb-[36px]" 
           style={{ borderBottom: `1.5px solid ${currentTheme.divider}` }}
@@ -247,6 +272,70 @@ const CanvasPreview = forwardRef(({
                 </span>
               </div>
             ))}
+          </div>
+        ) : slide.layoutType === 'metrics' ? (
+          /* METRICS LAYOUT: İki Sütunlu Vurgu Bloğu */
+          <div className="space-y-8 max-w-[920px]">
+            <p 
+              style={{ 
+                color: currentTheme.subtitle,
+                fontFamily: `'${subtitleFont}', sans-serif`,
+                fontSize: `${subtitleFontSize}px`,
+                lineHeight: subtitleLineHeight,
+                fontWeight: subtitleWeight
+              }}
+            >
+              {renderSubtitle() || 'Açıklama metnini sol panelden girebilirsiniz.'}
+            </p>
+
+            <div className="flex items-stretch gap-10 pt-4">
+              <div className="flex-1 flex flex-col justify-start">
+                <div 
+                  className="font-black text-[96px] leading-[0.92] mb-3"
+                  style={{ 
+                    color: currentTheme.statNumber,
+                    fontFamily: `'${subtitleFont}', sans-serif`
+                  }}
+                >
+                  {slide.stat1Number || '%100'}
+                </div>
+                <div 
+                  className="font-normal text-[30px] leading-[1.38]"
+                  style={{ 
+                    color: currentTheme.statDesc,
+                    fontFamily: `'${subtitleFont}', sans-serif`
+                  }}
+                >
+                  {slide.stat1Text || 'Tam kapsamlı teminat ve onarım güvencesi'}
+                </div>
+              </div>
+
+              <div 
+                className="w-[2px] self-stretch flex-shrink-0"
+                style={{ backgroundColor: accentLineColor }}
+              />
+
+              <div className="flex-1 flex flex-col justify-start">
+                <div 
+                  className="font-black text-[96px] leading-[0.92] mb-3"
+                  style={{ 
+                    color: currentTheme.statNumber,
+                    fontFamily: `'${subtitleFont}', sans-serif`
+                  }}
+                >
+                  {slide.stat2Number || '7/24'}
+                </div>
+                <div 
+                  className="font-normal text-[30px] leading-[1.38]"
+                  style={{ 
+                    color: currentTheme.statDesc,
+                    fontFamily: `'${subtitleFont}', sans-serif`
+                  }}
+                >
+                  {slide.stat2Text || 'Kesintisiz yol yardım ve asistans desteği'}
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           /* STANDARD / CTA LAYOUT */

@@ -19,16 +19,31 @@ const AUTHENTIC_ARTSE_SLIDES = [
   {
     id: 'slide-1',
     theme: 'navy',
-    category: 'SİGORTA SÖZLÜĞÜ',
+    category: 'SİGORTA REHBERİ',
     preheading: '',
-    title: 'Kasko',
-    subtitle: 'Sadece aracın kendisini değil, hasarın oluş sürecine bağlı tüm riskleri güvenceye alır.',
+    title: 'Kasko Poliçesi\nGerçekte Neyi Korur?',
+    subtitle: 'Sadece aracın hasarını değil, beklenmedik kaza ve afet süreçlerinde finansal güvencenizi ve hareket kabiliyetinizi kesintisiz teminat altına alır.',
     highlightText: '',
-    layoutType: 'standard',
+    layoutType: 'metrics',
+    stat1Number: '%100',
+    stat1Text: 'Tam kapsamlı hasar ve parça onarım güvencesi',
+    stat2Number: '7/24',
+    stat2Text: 'Kesintisiz yol yardım ve ikame araç desteği',
     image: ''
   },
   {
     id: 'slide-2',
+    theme: 'cream',
+    category: 'KURUMSAL RİSK YÖNETİMİ',
+    preheading: '',
+    title: 'Sanayi ve Lojistikte\nKesintisiz Güvence',
+    subtitle: 'Tedarik zincirinden ağır makine operasyonlarına kadar tüm operasyonel risklerinizi ARTSE uzmanlığıyla eksiksiz güvenceye alın.',
+    highlightText: '',
+    layoutType: 'f3_cover',
+    image: 'bd92131b-9ef5-4341-911a-9dfd76d3e9a1.jpg'
+  },
+  {
+    id: 'slide-3',
     theme: 'cream',
     category: 'SİGORTA SÖZLÜĞÜ',
     preheading: 'GENİŞLETİLMİŞ KASKO',
@@ -47,7 +62,7 @@ const AUTHENTIC_ARTSE_SLIDES = [
     image: ''
   },
   {
-    id: 'slide-3',
+    id: 'slide-4',
     theme: 'navy',
     category: 'SİGORTA SÖZLÜĞÜ',
     preheading: 'İMM NEDİR?',
@@ -58,10 +73,9 @@ const AUTHENTIC_ARTSE_SLIDES = [
     image: ''
   },
   {
-    id: 'slide-4',
+    id: 'slide-5',
     theme: 'cream',
-    category: 'SİGORTA SÖZLÜĞÜ',
-    preheading: 'COĞRAFİ SINIR',
+    category: 'COĞRAFİ SINIR',
     title: 'Sınırı geçtiğiniz an teminat\nduruyor.',
     subtitle: 'Poliçeniz yalnızca Türkiye içinde çalışıyor; yurt dışı için ayrı teminat gerekiyor.',
     highlightText: '',
@@ -69,7 +83,7 @@ const AUTHENTIC_ARTSE_SLIDES = [
     image: ''
   },
   {
-    id: 'slide-5',
+    id: 'slide-6',
     theme: 'navy',
     category: 'SİGORTA SÖZLÜĞÜ',
     preheading: 'SIRADAKİ ADIM',
@@ -84,29 +98,29 @@ const AUTHENTIC_ARTSE_SLIDES = [
 
 const DEFAULT_DESIGN_CONFIG = {
   titleFont: 'Zodiak',
-  titleFontSize: 66,
-  titleLineHeight: 1.14,
+  titleFontSize: 68,
+  titleLineHeight: 1.08,
   titleWeight: '700',
   subtitleFont: 'Satoshi',
-  subtitleFontSize: 28,
-  subtitleLineHeight: 1.58,
+  subtitleFontSize: 34,
+  subtitleLineHeight: 1.45,
   subtitleWeight: '400',
-  accentLineWidth: 79,
-  accentLineHeight: 5,
-  accentLineColor: '#F05A28',
+  accentLineWidth: 145,
+  accentLineHeight: 6,
+  accentLineColor: '#F37121',
   navyBgColor: '#00194C',
-  headerBadgeSize: 24,
-  headerBadgeTracking: 0.22,
+  headerBadgeSize: 29,
+  headerBadgeTracking: 0.1,
   logoScale: 1.0,
   subtextScale: 1.15,
   customLogoUrl: '',
   websiteText: 'ARTSEBROKER.COM.TR',
-  websiteFontSize: 21,
+  websiteFontSize: 26,
 };
 
 export default function App() {
   const [slides, setSlides] = useState(() => {
-    const saved = localStorage.getItem('artse_slides_data_v2');
+    const saved = localStorage.getItem('artse_slides_data_v3');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -118,7 +132,7 @@ export default function App() {
   });
 
   const [designConfig, setDesignConfig] = useState(() => {
-    const saved = localStorage.getItem('artse_design_config_v2');
+    const saved = localStorage.getItem('artse_design_config_v3');
     if (saved) {
       try {
         return { ...DEFAULT_DESIGN_CONFIG, ...JSON.parse(saved) };
@@ -141,11 +155,11 @@ export default function App() {
 
   // Auto-save to localStorage
   useEffect(() => {
-    localStorage.setItem('artse_slides_data_v2', JSON.stringify(slides));
+    localStorage.setItem('artse_slides_data_v3', JSON.stringify(slides));
   }, [slides]);
 
   useEffect(() => {
-    localStorage.setItem('artse_design_config_v2', JSON.stringify(designConfig));
+    localStorage.setItem('artse_design_config_v3', JSON.stringify(designConfig));
   }, [designConfig]);
 
   // Dynamic preview scaling

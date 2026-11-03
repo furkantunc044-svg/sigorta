@@ -7,12 +7,12 @@ import React from 'react';
  * - /logos/artse-official-dark.png  (for Navy / Dark backgrounds)
  */
 export default function ArtseLogo({ 
-  variant = 'dark', // 'dark' = on cream bg, 'light' = on navy bg
+  variant = 'dark', // 'dark' = on navy/dark bg, 'light' = on cream/white bg
   customLogoUrl = null, 
   logoScale = 1.0,
   className = '' 
 }) {
-  const isDarkBg = variant === 'light';
+  const isDarkBg = variant === 'dark';
 
   if (customLogoUrl) {
     return (
@@ -29,7 +29,9 @@ export default function ArtseLogo({
     );
   }
 
-  // Authentic 1500px official transparent brand logo
+  // Official transparent brand logo:
+  // artse-official-dark.png has white text (for dark navy bg)
+  // artse-official-light.png has navy text (for light cream/white bg)
   const logoSrc = isDarkBg 
     ? '/logos/artse-official-dark.png' 
     : '/logos/artse-official-light.png';
