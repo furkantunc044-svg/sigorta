@@ -339,6 +339,45 @@ export default function App() {
     }
   };
 
+  // Dosya adı için Türkçe karaktersiz, boşluksuz kısa ad
+  const slugify = (text) =>
+    (text || 'seri')
+      .toLowerCase()
+      .replace(/̇/g, '')
+      .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i')
+      .replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '') || 'seri';
+
+  const handleExportCSV = () => {
+    const errors = checkPlaceholders();
+    if (errors.length > 0) {
+      alert('Dışa aktarma engellendi! Lütfen yer tutucu alanları doldurun:\n\n• ' + errors.join('\n• '));
+      return;
+    }
+    exportToCanvaCSV(slides, `artse_${slugify(slides[0]?.category)}_canva.csv`);
+    showToast('Canva Bulk Create CSV indirildi!');
+  };
+
+  const handleExportPNG = async () => {
+    const errors = checkPlaceholders([slides[activeSlideIndex]]);
+    if (errors.length > 0) {
+      alert('PNG indirme engellendi! Lütfen slaytı tamamlayın:\n\n• ' + errors.join('\n• '));
+      return;
+    }
+    try {
+      setIsExporting(true);
+      const filename = `artse_${slugify(slides[activeSlideIndex]?.category)}_${activeSlideIndex + 1}-${slides.length}.png`;
+      await exportCanvasToPng(canvasRef, filename);
+      showToast(`Slayt #${activeSlideIndex + 1} HD PNG olarak indirildi!`);
+    } catch (err) {
+      console.error(err);
+      alert('PNG indirme hatası: ' + err.message);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // ZIP İndirme Handler
   const handleExportZip = async () => {
     const errors = checkPlaceholders();

@@ -109,7 +109,11 @@ export async function exportCarouselZip(slides, renderSlideToDataUrl, categoryNa
   const zip = new JSZip();
   const cleanCategory = (categoryName || 'sozluk')
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, '_');
+    .replace(/̇/g, '')
+    .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i')
+    .replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
 
   for (let i = 0; i < slides.length; i++) {
     const dataUrl = await renderSlideToDataUrl(i);
