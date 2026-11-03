@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "artboards": [
+    {
+      "file": "1Terim.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "1 · Terim"
+    },
+    {
+      "file": "2AnOlcu.dc.html",
+      "x": 1260,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "2 · An · Kimin masrafı ödenir"
+    },
+    {
+      "file": "3AnGenis.dc.html",
+      "x": 2520,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "3 · An · Genişletilmiş kasko"
+    },
+    {
+      "file": "4AnImm.dc.html",
+      "x": 3780,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "4 · An · İMM nedir"
+    },
+    {
+      "file": "5AnSinir.dc.html",
+      "x": 5040,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "5 · An · Coğrafi sınır"
+    },
+    {
+      "file": "6Cagri.dc.html",
+      "x": 6300,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "6 · Eyleme çağrı"
+    }
+  ]
+}
