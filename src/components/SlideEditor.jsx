@@ -43,11 +43,8 @@ export default function SlideEditor({
   ];
 
   const fontOptions = [
-    { id: 'Zodiak', label: 'Zodiak (Orijinal Artse Serif)', sample: 'Serif' },
-    { id: 'DM Serif Display', label: 'DM Serif Display', sample: 'Serif' },
-    { id: 'Playfair Display', label: 'Playfair Display', sample: 'Serif' },
-    { id: 'Lora', label: 'Lora', sample: 'Serif' },
-    { id: 'Satoshi', label: 'Satoshi (Orijinal Artse Sans)', sample: 'Sans' },
+    { id: 'Zodiak', label: 'Zodiak (Resmi Başlık - Serif)', sample: 'Serif' },
+    { id: 'Satoshi', label: 'Satoshi (Resmi Gövde - Sans)', sample: 'Sans' },
   ];
 
   const handleImageUpload = (e) => {
@@ -248,6 +245,12 @@ export default function SlideEditor({
                   { id: 'metrics', label: 'Vurgu Rakamlı', icon: Sliders },
                   { id: 'list', label: 'Maddeli', icon: ListOrdered },
                   { id: 'f3_cover', label: 'F3 Foto Kapak', icon: ImageIcon },
+                  { id: 'f2_closing', label: 'F2 Foto Kapanış', icon: ImageIcon },
+                  { id: 'comparison', label: 'Karşılaştırma', icon: Sliders },
+                  { id: 'qa_takeaway', label: 'Soru-Cevap', icon: FileText },
+                  { id: 'single_stat', label: 'Tek Kahraman', icon: Sliders },
+                  { id: 'quote', label: 'Alıntı', icon: FileText },
+                  { id: 'steps', label: 'Adım Listesi', icon: ListOrdered },
                   { id: 'cta', label: 'Eyleme Çağrı', icon: MousePointerClick },
                 ].map((lt) => {
                   const isSelected = (currentSlide.layoutType || 'standard') === lt.id;
@@ -273,6 +276,21 @@ export default function SlideEditor({
                           if (!currentSlide.stat1Text) updateActiveSlide('stat1Text', 'Tam kapsamlı hasar ve parça onarım güvencesi');
                           if (!currentSlide.stat2Number) updateActiveSlide('stat2Number', '7/24');
                           if (!currentSlide.stat2Text) updateActiveSlide('stat2Text', 'Kesintisiz yol yardım ve ikame araç desteği');
+                        }
+                        if (lt.id === 'f2_closing') {
+                          if (!currentSlide.image) updateActiveSlide('image', '/photos/1b326e82-8c46-43fb-979c-dd9554887dcb.jpg');
+                        }
+                        if (lt.id === 'comparison') {
+                          if (!currentSlide.col1Title) updateActiveSlide('col1Title', 'STANDART TEMİNAT');
+                          if (!currentSlide.col1Body) updateActiveSlide('col1Body', 'Temel yasal limitler kapsamında sınırlı koruma sağlar.');
+                          if (!currentSlide.col2Title) updateActiveSlide('col2Title', 'GENİŞLETİLMİŞ TEMİNAT');
+                          if (!currentSlide.col2Body) updateActiveSlide('col2Body', 'Limitsiz İMM ve orijinal parça garantisiyle tam koruma sunar.');
+                        }
+                        if (lt.id === 'single_stat') {
+                          if (!currentSlide.stat1Number) updateActiveSlide('stat1Number', '48 SAAT');
+                        }
+                        if (lt.id === 'quote') {
+                          if (!currentSlide.quoteAuthor) updateActiveSlide('quoteAuthor', 'ARTSE Risk Danışmanlığı');
                         }
                       }}
                       className={`py-1.5 px-2 rounded-lg border text-xs font-medium flex items-center justify-center gap-1 transition ${
@@ -451,23 +469,23 @@ export default function SlideEditor({
               </div>
             )}
 
-            {/* F3 Foto Kapak için Fotoğraf Alanı (Yalnız F3 Kapakta aktif, diğer düzenlerde metin fotoğraf üstüne binmez) */}
-            {currentSlide.layoutType === 'f3_cover' && (
-              <div>
-                <label className="flex items-center gap-1.5 text-xs font-medium text-slate-300 mb-1">
+            {/* F3 Foto Kapak veya F2 Foto Kapanış için Fotoğraf ve Odak Kontrolleri */}
+            {(currentSlide.layoutType === 'f3_cover' || currentSlide.layoutType === 'f2_closing') && (
+              <div className="p-3 bg-slate-900/90 border border-slate-800 rounded-lg space-y-3">
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
                   <ImageIcon className="w-3.5 h-3.5 text-[#F05A28]" />
-                  <span>F3 Kapak Fotoğrafı (Üst 520px Kadraj)</span>
+                  <span>{currentSlide.layoutType === 'f3_cover' ? 'F3 Kapak Fotoğrafı (Üst 520px)' : 'F2 Kapanış Fotoğrafı (Alt 384px)'}</span>
                 </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={currentSlide.image || ''}
                     onChange={(e) => updateActiveSlide('image', e.target.value)}
-                    placeholder="Örn: /bd92131b-9ef5-4341-911a-9dfd76d3e9a1.jpg"
-                    className="flex-1 px-3 py-1.5 text-xs bg-slate-900 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#F05A28]"
+                    placeholder="/photos/... veya görsel URL"
+                    className="flex-1 px-3 py-1.5 text-xs bg-slate-950 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#F05A28]"
                   />
                   <label className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 rounded-lg cursor-pointer border border-slate-700 transition flex items-center">
-                    <span>Seç</span>
+                    <span>Yükle</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -475,6 +493,70 @@ export default function SlideEditor({
                       className="hidden"
                     />
                   </label>
+                </div>
+
+                {/* Hazır Endüstriyel Stok Seçici */}
+                <div>
+                  <span className="text-[11px] text-slate-400 block mb-1">Hazır Endüstriyel Fotoğraflar:</span>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {[
+                      { name: 'Tesis 1', url: '/bd92131b-9ef5-4341-911a-9dfd76d3e9a1.jpg', fx: 50, fy: 42 },
+                      { name: 'Liman 2', url: '/photos/1b326e82-8c46-43fb-979c-dd9554887dcb.jpg', fx: 50, fy: 50 },
+                      { name: 'Depo 3', url: '/photos/4338ae67-2a03-4d2d-97b4-3fa44ee5a3c9.jpg', fx: 50, fy: 40 },
+                      { name: 'Üretim 4', url: '/photos/624d0258-dd88-4838-9d0e-acd16dfc327b.jpg', fx: 50, fy: 60 },
+                    ].map((stok, sidx) => (
+                      <button
+                        key={sidx}
+                        type="button"
+                        onClick={() => {
+                          updateActiveSlide('image', stok.url);
+                          updateActiveSlide('focusX', stok.fx);
+                          updateActiveSlide('focusY', stok.fy);
+                        }}
+                        className="py-1 px-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded text-[10px] text-slate-200 truncate"
+                      >
+                        {stok.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Yatay ve Dikey Odak (Focus X/Y) ve Yakınlaştırma (Zoom) Kaydırıcıları */}
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80">
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Odak X: {currentSlide.focusX ?? 50}%</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={currentSlide.focusX ?? 50}
+                      onChange={(e) => updateActiveSlide('focusX', Number(e.target.value))}
+                      className="w-full accent-[#F05A28]"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Odak Y: {currentSlide.focusY ?? (currentSlide.layoutType === 'f3_cover' ? 42 : 82)}%</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={currentSlide.focusY ?? (currentSlide.layoutType === 'f3_cover' ? 42 : 82)}
+                      onChange={(e) => updateActiveSlide('focusY', Number(e.target.value))}
+                      className="w-full accent-[#F05A28]"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 block">Zoom: {currentSlide.imageZoom ?? 1.0}x</span>
+                    <input
+                      type="range"
+                      min="1.0"
+                      max="2.0"
+                      step="0.05"
+                      value={currentSlide.imageZoom ?? 1.0}
+                      onChange={(e) => updateActiveSlide('imageZoom', Number(e.target.value))}
+                      className="w-full accent-[#F05A28]"
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -585,7 +667,7 @@ export default function SlideEditor({
             />
           </div>
 
-          {/* 6. Turuncu Çizgi Boyutu */}
+          {/* 6. Turuncu Çizgi Boyutu (Varsayılan 145x6) */}
           <div className="grid grid-cols-2 gap-3 pt-1 border-t border-slate-800/60">
             <div>
               <div className="flex justify-between items-center text-xs font-medium text-slate-300 mb-1">
@@ -619,51 +701,13 @@ export default function SlideEditor({
             </div>
           </div>
 
-          {/* 7. LACİVERT ZEMİN TONU AYARI */}
-          <div className="pt-3 border-t border-slate-800/60">
-            <div className="flex justify-between items-center text-xs font-medium text-slate-300 mb-1.5">
-              <span>Lacivert Zemin Tonu</span>
-              <span className="font-mono text-xs text-sky-400">{designConfig.navyBgColor || '#00194C'}</span>
-            </div>
-            <div className="flex items-center gap-2 mb-2">
-              <input
-                type="color"
-                value={designConfig.navyBgColor || '#00194C'}
-                onChange={(e) => updateDesignConfig('navyBgColor', e.target.value)}
-                className="w-8 h-8 rounded border border-slate-700 bg-transparent cursor-pointer"
-              />
-              <span className="text-[11px] text-slate-400">Renk Seçici ile dilediğiniz tona ayarlayın</span>
-            </div>
-            {/* Hızlı Ton Butonları */}
-            <div className="grid grid-cols-3 gap-1.5">
-              {[
-                { name: 'Orijinal (#00194C)', hex: '#00194C' },
-                { name: 'Gece Mavisi (#031738)', hex: '#031738' },
-                { name: 'Derin Kobalt (#001F5B)', hex: '#001F5B' },
-              ].map((c) => (
-                <button
-                  key={c.hex}
-                  onClick={() => updateDesignConfig('navyBgColor', c.hex)}
-                  className={`py-1 px-1.5 rounded text-[10px] font-medium border text-center transition ${
-                    (designConfig.navyBgColor || '#00194C') === c.hex
-                      ? 'border-[#F05A28] text-white bg-slate-800'
-                      : 'border-slate-800 text-slate-400 hover:text-slate-200 bg-slate-900/60'
-                  }`}
-                >
-                  <span className="w-2 h-2 rounded-full inline-block mr-1 align-middle" style={{ backgroundColor: c.hex }} />
-                  <span>{c.name.split(' ')[0]}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 8. LOGO AYARLARI */}
+          {/* 7. LOGO AYARLARI */}
           <div className="pt-3 border-t border-slate-800/60 space-y-3">
             <span className="block text-xs font-bold text-slate-200">
               Resmi Logo Seçenekleri
             </span>
 
-            {/* Logo Boyut Slider */}
+            {/* Logo Boyut Slider: Sınırlandırılmış aralık 0.7 - 1.4 */}
             <div>
               <div className="flex justify-between items-center text-xs font-medium text-slate-300 mb-1">
                 <span>Ana Logo Büyüklüğü</span>
@@ -672,7 +716,7 @@ export default function SlideEditor({
               <input
                 type="range"
                 min="0.7"
-                max="1.6"
+                max="1.4"
                 step="0.05"
                 value={designConfig.logoScale}
                 onChange={(e) => updateDesignConfig('logoScale', Number(e.target.value))}
@@ -680,59 +724,40 @@ export default function SlideEditor({
               />
             </div>
 
-            {/* Alt Yazı Netliği / Boyut Slider */}
-            <div>
-              <div className="flex justify-between items-center text-xs font-medium text-slate-300 mb-1">
-                <span>Alt Yazı Netliği (Sigorta Brokerliği A.Ş.)</span>
-                <span className="font-mono text-sky-400">{Math.round((designConfig.subtextScale || 1.15) * 100)}%</span>
-              </div>
-              <input
-                type="range"
-                min="0.9"
-                max="1.7"
-                step="0.05"
-                value={designConfig.subtextScale || 1.15}
-                onChange={(e) => updateDesignConfig('subtextScale', Number(e.target.value))}
-                className="w-full accent-sky-400 cursor-pointer"
-              />
-            </div>
-
-            {/* Logo Durumu */}
+            {/* Gerçekçi Logo Bilgisi */}
             <div className="p-3 bg-slate-900 border border-slate-800 rounded-lg">
-              <p className="text-xs text-emerald-400 font-medium">
-                ✓ Ultra-HD Vektörel ARTSE Logo Motoru devrede.
+              <p className="text-xs text-sky-400 font-medium">
+                Logo: ARTSE resmi PNG (1500×357, şeffaf).
               </p>
               <p className="text-[11px] text-slate-400 mt-1">
-                Matematiksel SVG çizimi sayesinde tüm ölçeklerde sıfır pikselleşme ile cam gibi keskin render alınır.
+                2x PNG çıktısında yüksek çözünürlükle net basılır.
               </p>
             </div>
 
-            {/* Özel Logo Yükleme Alternatifi */}
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Farklı Logo Dosyası Yüklemek İsterseniz:
-              </label>
-              <div className="flex items-center gap-2">
-                <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 rounded-lg cursor-pointer border border-slate-700 transition">
-                  <Upload className="w-3.5 h-3.5 text-[#F05A28]" />
-                  <span>Logo Dosyası Seç (PNG/SVG)</span>
+            {/* Gelişmiş Logo Yükleme Alanı */}
+            <details className="text-xs text-slate-400">
+              <summary className="cursor-pointer hover:text-slate-200 py-1">Gelişmiş: Harici Logo Yükle</summary>
+              <div className="mt-2 p-2.5 bg-slate-950 border border-amber-500/30 rounded text-amber-200/90 text-[11px]">
+                ⚠️ Marka dışı logo yüklemek serinin kurumsal tutarlılığını bozar.
+                <div className="mt-2 flex items-center gap-2">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleLogoUpload}
-                    className="hidden"
+                    className="text-xs text-slate-300"
                   />
-                </label>
-                {designConfig.customLogoUrl && (
-                  <button
-                    onClick={() => updateDesignConfig('customLogoUrl', '')}
-                    className="px-2.5 py-2 text-xs text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded-lg transition"
-                  >
-                    Kaldır
-                  </button>
-                )}
+                  {designConfig.customLogoUrl && (
+                    <button
+                      onClick={() => updateDesignConfig('customLogoUrl', '')}
+                      className="px-2.5 py-1 text-xs text-red-400 hover:bg-red-500/10 border border-red-500/20 rounded transition"
+                    >
+                      Kaldır
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
+            </details>
+          </div>
 
             {/* Web Sitesi Metni */}
             <div>
@@ -747,7 +772,6 @@ export default function SlideEditor({
                 className="w-full px-3 py-1.5 text-xs bg-slate-900 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:border-[#F05A28]"
               />
             </div>
-          </div>
         </div>
       )}
     </div>

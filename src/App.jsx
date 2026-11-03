@@ -5,7 +5,7 @@ import CanvasPreview from './components/CanvasPreview';
 import { 
   exportToCanvaCSV, 
   exportCanvasToPng, 
-  exportCanvasToSvg 
+  exportCarouselZip 
 } from './utils/exportUtils';
 import { 
   ChevronLeft, 
@@ -295,77 +295,84 @@ export default function App() {
     return invalidItems;
   };
 
-  // Export handlers
-  const handleExportCSV = () => {
+  const [showGuides, setShowGuides] = useState(false);
+
+  // Projeyi JSON olarak kaydet
+  const handleSaveProject = () => {
+    const projectData = {
+      version: '4.0.0',
+      exportDate: new Date().toISOString(),
+      slides,
+      designConfig
+    };
+    const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `artse_proje_${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Proje JSON olarak kaydedildi!');
+  };
+
+  // JSON Projesini Aç
+  const handleLoadProject = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+          if (data.slides && Array.isArray(data.slides)) {
+            setSlides(data.slides);
+            if (data.designConfig) setDesignConfig(data.designConfig);
+            setActiveSlideIndex(0);
+            showToast('Proje başarıyla yüklendi!');
+          }
+        } catch (err) {
+          alert('Geçersiz proje dosyası: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  // ZIP İndirme Handler
+  const handleExportZip = async () => {
     const errors = checkPlaceholders();
     if (errors.length > 0) {
-      alert('Dışa aktarma engellendi! Lütfen yer tutucu alanları doldurun:\n\n• ' + errors.join('\n• '));
-      return;
+      if (!window.confirm(`${errors.length} adet yer tutucu / eksik alan var:\n\n• ${errors.slice(0, 3).join('\n• ')}\n\nYine de ZIP olarak indirmek istiyor musunuz?`)) {
+        return;
+      }
     }
-    exportToCanvaCSV(slides, `artse_canva_bulk_${Date.now()}.csv`);
-    showToast('Canva Bulk Create CSV indirildi!');
-  };
 
-  const handleExportPNG = async () => {
-    const errors = checkPlaceholders([slides[activeSlideIndex]]);
-    if (errors.length > 0) {
-      alert('PNG indirme engellendi! Lütfen slaytı tamamlayın:\n\n• ' + errors.join('\n• '));
-      return;
-    }
-    try {
-      setIsExporting(true);
-      const filename = `artse_slayt_${activeSlideIndex + 1}_${Date.now()}.png`;
-      await exportCanvasToPng(canvasRef, filename);
-      showToast(`Slayt #${activeSlideIndex + 1} HD PNG olarak indirildi!`);
-    } catch (err) {
-      console.error(err);
-      alert('PNG indirme hatası: ' + err.message);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleExportSVG = async () => {
-    const errors = checkPlaceholders([slides[activeSlideIndex]]);
-    if (errors.length > 0) {
-      alert('SVG indirme engellendi! Lütfen slaytı tamamlayın:\n\n• ' + errors.join('\n• '));
-      return;
-    }
-    try {
-      setIsExporting(true);
-      const filename = `artse_slayt_${activeSlideIndex + 1}_${Date.now()}.svg`;
-      await exportCanvasToSvg(canvasRef, filename);
-      showToast(`Slayt #${activeSlideIndex + 1} SVG olarak indirildi!`);
-    } catch (err) {
-      console.error(err);
-      alert('SVG indirme hatası: ' + err.message);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleExportAllPNG = async () => {
-    const errors = checkPlaceholders();
-    if (errors.length > 0) {
-      alert('Tümünü indirme engellendi! Yer tutucu alanları doldurun:\n\n• ' + errors.join('\n• '));
-      return;
-    }
     try {
       setIsExporting(true);
       const originalIndex = activeSlideIndex;
-      showToast('Tüm slaytlar hazırlanıyor...');
+      showToast('Tüm slaytlar 2x PNG kalitesinde paketleniyor...');
 
-      for (let i = 0; i < slides.length; i++) {
-        setActiveSlideIndex(i);
+      // Render helper function for zip export
+      const renderSlideToDataUrl = async (index) => {
+        setActiveSlideIndex(index);
         await new Promise(r => setTimeout(r, 450));
-        await exportCanvasToPng(canvasRef, `artse_slayt_${i + 1}_carousel.png`);
-      }
+        const { toPng } = await import('html-to-image');
+        return await toPng(canvasRef.current, {
+          quality: 1.0,
+          pixelRatio: 2,
+          cacheBust: true,
+        });
+      };
+
+      const categoryName = slides[0]?.category || 'sozluk';
+      await exportCarouselZip(slides, renderSlideToDataUrl, categoryName);
 
       setActiveSlideIndex(originalIndex);
-      showToast(`Toplam ${slides.length} slayt başarıyla indirildi!`);
+      showToast(`Tüm seri ZIP olarak başarıyla indirildi!`);
     } catch (err) {
       console.error(err);
-      alert('Toplu indirmede hata: ' + err.message);
+      alert('ZIP indirme hatası: ' + err.message);
     } finally {
       setIsExporting(false);
     }
@@ -388,10 +395,13 @@ export default function App() {
         setAspectRatio={setAspectRatio}
         showSlideNumber={showSlideNumber}
         setShowSlideNumber={setShowSlideNumber}
+        showGuides={showGuides}
+        setShowGuides={setShowGuides}
         onExportCSV={handleExportCSV}
         onExportPNG={handleExportPNG}
-        onExportSVG={handleExportSVG}
-        onExportAllPNG={handleExportAllPNG}
+        onExportZip={handleExportZip}
+        onSaveProject={handleSaveProject}
+        onLoadProject={handleLoadProject}
         isExporting={isExporting}
       />
 
@@ -457,7 +467,7 @@ export default function App() {
             >
               <CanvasPreview
                 ref={canvasRef}
-                slide={currentSlide}
+                slide={{ ...currentSlide, showGuides }}
                 aspectRatio={aspectRatio}
                 currentSlideIndex={activeSlideIndex}
                 totalSlides={slides.length}

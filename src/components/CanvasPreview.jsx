@@ -133,6 +133,10 @@ const CanvasPreview = forwardRef(({
     : [];
 
   const isF3Cover = slide.layoutType === 'f3_cover';
+  const isF2Closing = slide.layoutType === 'f2_closing';
+
+  // Slayt özel başlık puntosu veya global ayar
+  const effectiveTitleSize = slide.customTitleSize || titleFontSize;
 
   return (
     <div
@@ -143,18 +147,62 @@ const CanvasPreview = forwardRef(({
         height: `${canvasHeight}px`,
         backgroundColor: isF3Cover ? '#FAF9F6' : currentTheme.bg,
       }}
-      className="relative flex flex-col justify-between px-[85px] pt-[56px] pb-0 select-none overflow-hidden transition-colors duration-300"
+      className="relative flex flex-col justify-between px-[84px] pt-[56px] pb-0 select-none overflow-hidden transition-colors duration-300"
     >
-      {/* F3 Fotoğraflı Kart: Üst 520 px Tam Genişlik Kadraj (Metin fotoğrafın üstüne binmez) */}
-      {isF3Cover && slide.image && (
+      {/* Kılavuz Katmanı (Yalnızca editörde görüntülenir, PNG/dışa aktarmada gizlenir) */}
+      {slide.showGuides && (
+        <div className="absolute inset-0 pointer-events-none z-50">
+          {/* Sol/Sağ 84px Marjin */}
+          <div className="absolute top-0 bottom-0 left-[84px] w-[1px] bg-red-500/40" />
+          <div className="absolute top-0 bottom-0 right-[84px] w-[1px] bg-red-500/40" />
+          {/* Instagram 1:1 Profil Izgarası Güvenli Alanı: y=135 ve y=1215 */}
+          <div className="absolute left-0 right-0 top-[135px] h-[1px] bg-emerald-400/50" />
+          <div className="absolute left-0 right-0 top-[1215px] h-[1px] bg-emerald-400/50" />
+          {/* F3 Üst 520px Sınırı */}
+          {isF3Cover && (
+            <div className="absolute left-0 right-0 top-[520px] h-[1px] bg-amber-400/60" />
+          )}
+          {/* F2 Alt Bant Sınırı: y=812 ve y=1196 */}
+          {isF2Closing && (
+            <>
+              <div className="absolute left-0 right-0 top-[812px] h-[1px] bg-amber-400/60" />
+              <div className="absolute left-0 right-0 top-[1196px] h-[1px] bg-amber-400/60" />
+            </>
+          )}
+        </div>
+      )}
+
+      {/* F3 Fotoğraflı Kart: Üst 520 px Tam Genişlik Kadraj */}
+      {isF3Cover && (slide.image || '/bd92131b-9ef5-4341-911a-9dfd76d3e9a1.jpg') && (
         <div 
           className="absolute top-0 left-0 w-full h-[520px] overflow-hidden pointer-events-none"
         >
           <img 
-            src={slide.image} 
+            src={slide.image || '/bd92131b-9ef5-4341-911a-9dfd76d3e9a1.jpg'} 
             alt="Endüstriyel Sahne" 
             className="w-full h-full object-cover" 
-            style={{ objectPosition: '50% 42%' }}
+            style={{ 
+              objectPosition: `${slide.focusX ?? 50}% ${slide.focusY ?? 42}%`,
+              transform: `scale(${slide.imageZoom ?? 1.0})`
+            }}
+          />
+        </div>
+      )}
+
+      {/* F2 Fotoğraflı Kart: Alt Bant y=812-1196 (384 px yükseklik), tam genişlik */}
+      {isF2Closing && (slide.image || '/photos/1b326e82-8c46-43fb-979c-dd9554887dcb.jpg') && (
+        <div 
+          className="absolute left-0 w-full h-[384px] overflow-hidden pointer-events-none"
+          style={{ top: '812px' }}
+        >
+          <img 
+            src={slide.image || '/photos/1b326e82-8c46-43fb-979c-dd9554887dcb.jpg'} 
+            alt="Endüstriyel Sahne Alt Bant" 
+            className="w-full h-full object-cover" 
+            style={{ 
+              objectPosition: `${slide.focusX ?? 50}% ${slide.focusY ?? 82}%`,
+              transform: `scale(${slide.imageZoom ?? 1.0})`
+            }}
           />
         </div>
       )}
@@ -165,7 +213,7 @@ const CanvasPreview = forwardRef(({
         style={{ marginTop: isF3Cover ? '500px' : '0px' }}
       >
         <div 
-          className="flex items-center justify-between pb-[36px]" 
+          className="flex items-center justify-between pb-[32px]" 
           style={{ borderBottom: `1.5px solid ${currentTheme.divider}` }}
         >
           <div className="flex items-center gap-3">
@@ -183,7 +231,7 @@ const CanvasPreview = forwardRef(({
                 fontFamily: `'${subtitleFont}', sans-serif`
               }}
             >
-              {slide.category || 'SİGORTA SÖZLÜĞÜ'}
+              {slide.category || 'SİGORTA REHBERİ'}
             </span>
           </div>
 
@@ -204,8 +252,14 @@ const CanvasPreview = forwardRef(({
         </div>
       </div>
 
-      {/* 2. CENTER CONTENT SECTION */}
-      <div className="relative z-10 flex flex-col justify-center flex-1 my-auto pr-4 py-8">
+      {/* 2. SABİT ÇAPA İÇERİK BÖLÜMÜ (Sabit y=430 başlangıç) */}
+      <div 
+        className="relative z-10 flex flex-col justify-start flex-1 pr-4"
+        style={{
+          marginTop: isF3Cover ? '30px' : (isPortrait ? '135px' : '70px'),
+          maxHeight: isF2Closing ? '540px' : 'none'
+        }}
+      >
         {/* Preheading (Örn: GENİŞLETİLMİŞ KASKO, SIRADAKİ ADIM, COĞRAFİ SINIR) */}
         {slide.preheading && (
           <div 
@@ -222,21 +276,23 @@ const CanvasPreview = forwardRef(({
 
         {/* Main Title - Zodiak Serif font */}
         <h1 
-          className="tracking-tight whitespace-pre-line"
+          className="whitespace-pre-line"
           style={{ 
             color: currentTheme.title,
             fontFamily: `'${titleFont}', Georgia, serif`,
-            fontSize: `${titleFontSize}px`,
+            fontSize: `${effectiveTitleSize}px`,
             lineHeight: titleLineHeight,
-            fontWeight: titleWeight
+            fontWeight: titleWeight,
+            letterSpacing: '-0.01em',
+            textWrap: 'balance'
           }}
         >
           {slide.title || 'Başlık Metni'}
         </h1>
 
-        {/* Accent Underline — pixel measured: 79px wide, 5px tall, 37px below title, 55px above body */}
+        {/* Accent Underline — 145px genişlik, 6px kalınlık, 37px başlık altı */}
         <div 
-          className="rounded-full mt-[37px] mb-[55px]" 
+          className="rounded-full mt-[37px] mb-[45px]" 
           style={{ 
             backgroundColor: accentLineColor,
             width: `${accentLineWidth}px`,
@@ -246,7 +302,7 @@ const CanvasPreview = forwardRef(({
 
         {/* LAYOUT: LIST */}
         {slide.layoutType === 'list' ? (
-          <div className="flex flex-col space-y-4 max-w-[940px]">
+          <div className="flex flex-col space-y-4 max-w-[912px]">
             {(listItems.length > 0 ? listItems : ['Madde 1', 'Madde 2', 'Madde 3']).map((item, idx) => (
               <div 
                 key={idx} 
@@ -280,7 +336,7 @@ const CanvasPreview = forwardRef(({
           </div>
         ) : slide.layoutType === 'metrics' ? (
           /* METRICS LAYOUT: İki Sütunlu Vurgu Bloğu */
-          <div className="space-y-8 max-w-[920px]">
+          <div className="space-y-8 max-w-[912px]">
             <p 
               style={{ 
                 color: currentTheme.subtitle,
@@ -296,7 +352,7 @@ const CanvasPreview = forwardRef(({
             <div className="flex items-stretch gap-10 pt-4">
               <div className="flex-1 flex flex-col justify-start">
                 <div 
-                  className="font-black text-[96px] leading-[0.92] mb-3"
+                  className="font-black text-[120px] leading-[0.90] mb-3"
                   style={{ 
                     color: currentTheme.statNumber,
                     fontFamily: `'${subtitleFont}', sans-serif`
@@ -305,7 +361,7 @@ const CanvasPreview = forwardRef(({
                   {slide.stat1Number || '%100'}
                 </div>
                 <div 
-                  className="leading-[1.40]"
+                  className="leading-[1.38]"
                   style={{ 
                     color: currentTheme.statDesc,
                     fontFamily: `'${subtitleFont}', sans-serif`,
@@ -324,7 +380,7 @@ const CanvasPreview = forwardRef(({
 
               <div className="flex-1 flex flex-col justify-start">
                 <div 
-                  className="font-black text-[96px] leading-[0.92] mb-3"
+                  className="font-black text-[120px] leading-[0.90] mb-3"
                   style={{ 
                     color: currentTheme.statNumber,
                     fontFamily: `'${subtitleFont}', sans-serif`
@@ -333,7 +389,7 @@ const CanvasPreview = forwardRef(({
                   {slide.stat2Number || '7/24'}
                 </div>
                 <div 
-                  className="leading-[1.40]"
+                  className="leading-[1.38]"
                   style={{ 
                     color: currentTheme.statDesc,
                     fontFamily: `'${subtitleFont}', sans-serif`,
@@ -346,9 +402,171 @@ const CanvasPreview = forwardRef(({
               </div>
             </div>
           </div>
+        ) : slide.layoutType === 'comparison' ? (
+          /* 1. İKİ SÜTUN KARŞILAŞTIRMA */
+          <div className="flex items-stretch gap-8 max-w-[912px]">
+            <div className="flex-1 flex flex-col">
+              <div 
+                className="font-bold text-[29px] mb-3"
+                style={{ 
+                  color: currentTheme.preheading,
+                  fontFamily: `'${subtitleFont}', sans-serif` 
+                }}
+              >
+                {slide.col1Title || 'STANDART TEMİNAT'}
+              </div>
+              <p 
+                className="text-[32px] leading-relaxed"
+                style={{ 
+                  color: currentTheme.subtitle,
+                  fontFamily: `'${subtitleFont}', sans-serif` 
+                }}
+              >
+                {slide.col1Body || 'Temel yasal limitler kapsamında sınırlı koruma sağlar.'}
+              </p>
+            </div>
+            <div 
+              className="w-[2px] self-stretch flex-shrink-0"
+              style={{ backgroundColor: accentLineColor }}
+            />
+            <div className="flex-1 flex flex-col">
+              <div 
+                className="font-bold text-[29px] mb-3"
+                style={{ 
+                  color: currentTheme.preheading,
+                  fontFamily: `'${subtitleFont}', sans-serif` 
+                }}
+              >
+                {slide.col2Title || 'GENİŞLETİLMİŞ TEMİNAT'}
+              </div>
+              <p 
+                className="text-[32px] leading-relaxed"
+                style={{ 
+                  color: currentTheme.subtitle,
+                  fontFamily: `'${subtitleFont}', sans-serif` 
+                }}
+              >
+                {slide.col2Body || 'Limitsiz İMM ve orijinal parça garantisiyle tam koruma sunar.'}
+              </p>
+            </div>
+          </div>
+        ) : slide.layoutType === 'qa_takeaway' ? (
+          /* 2. SORU-CEVAP KAPANISI */
+          <div className="space-y-8 max-w-[912px]">
+            <div 
+              className="pl-6"
+              style={{ borderLeft: `6px solid ${accentLineColor}` }}
+            >
+              <p 
+                className="font-medium text-[36px] leading-snug"
+                style={{ 
+                  color: currentTheme.headerText,
+                  fontFamily: `'${subtitleFont}', sans-serif`
+                }}
+              >
+                {slide.subtitle || 'Kasko bir masraf değil, kriz anında nakit akışınızı ve operasyonunuzu koruyan stratejik bir kalkandır.'}
+              </p>
+            </div>
+          </div>
+        ) : slide.layoutType === 'single_stat' ? (
+          /* 3. TEK KAHRAMAN RAKAM */
+          <div className="space-y-6 max-w-[912px]">
+            <div 
+              className="font-black text-[140px] leading-[0.90]"
+              style={{ 
+                color: currentTheme.statNumber,
+                fontFamily: `'${subtitleFont}', sans-serif`
+              }}
+            >
+              {slide.stat1Number || '48 SAAT'}
+            </div>
+            <p 
+              className="text-[32px] leading-relaxed"
+              style={{ 
+                color: currentTheme.subtitle,
+                fontFamily: `'${subtitleFont}', sans-serif`
+              }}
+            >
+              {slide.subtitle || 'Hasar anından itibaren ikame araç ve ekspersiz onay süreci.'}
+            </p>
+          </div>
+        ) : slide.layoutType === 'quote' ? (
+          /* 4. ALINTI KARTI */
+          <div className="space-y-6 max-w-[912px]">
+            <div 
+              className="pl-6"
+              style={{ borderLeft: `6px solid ${accentLineColor}` }}
+            >
+              <p 
+                className="italic text-[60px] leading-[1.22]"
+                style={{ 
+                  color: currentTheme.title,
+                  fontFamily: `'${titleFont}', Georgia, serif`
+                }}
+              >
+                "{slide.subtitle || 'Doğru risk analizi yapılmamış bir poliçe, sadece kâğıt üzerinde var olan bir güvencedir.'}"
+              </p>
+            </div>
+            {slide.quoteAuthor && (
+              <div 
+                className="font-medium text-[32px]"
+                style={{ 
+                  color: currentTheme.preheading,
+                  fontFamily: `'${subtitleFont}', sans-serif`
+                }}
+              >
+                — {slide.quoteAuthor}
+              </div>
+            )}
+          </div>
+        ) : slide.layoutType === 'steps' ? (
+          /* 5. ADIM LİSTESİ */
+          <div className="flex flex-col space-y-6 max-w-[912px]">
+            {(slide.steps || [
+              { title: 'Risk Tespiti', desc: 'İşletmenizin ve araç filonuzun operasyonel risk haritası çıkarılır.' },
+              { title: 'Poliçe Karşılaştırma', desc: 'En az 15 farklı sigorta şirketinden özel teminatlı teklifler toplanır.' },
+              { title: '7/24 Kesintisiz Takip', desc: 'Hasar anında dosya ve ikame araç süreçleri brokerinizce yönetilir.' }
+            ]).map((st, sidx) => (
+              <div 
+                key={sidx}
+                className="flex items-start gap-5 pb-4"
+                style={{ borderBottom: `1.5px solid ${currentTheme.listDivider}` }}
+              >
+                <span 
+                  className="font-black text-[56px] leading-none flex-shrink-0"
+                  style={{ 
+                    color: currentTheme.preheading,
+                    fontFamily: `'${subtitleFont}', sans-serif`
+                  }}
+                >
+                  {sidx + 1}
+                </span>
+                <div>
+                  <h4 
+                    className="font-bold text-[34px] leading-tight mb-1"
+                    style={{ 
+                      color: currentTheme.headerText,
+                      fontFamily: `'${subtitleFont}', sans-serif`
+                    }}
+                  >
+                    {st.title}
+                  </h4>
+                  <p 
+                    className="text-[32px] leading-relaxed"
+                    style={{ 
+                      color: currentTheme.subtitle,
+                      fontFamily: `'${subtitleFont}', sans-serif`
+                    }}
+                  >
+                    {st.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
-          /* STANDARD / CTA LAYOUT */
-          <div className="space-y-7 max-w-[920px]">
+          /* STANDARD / CTA / F2 LAYOUT */
+          <div className="space-y-7 max-w-[912px]">
             <p 
               style={{ 
                 color: currentTheme.subtitle,
@@ -389,8 +607,7 @@ const CanvasPreview = forwardRef(({
           <ArtseLogo 
             variant={currentTheme.logoVariant} 
             customLogoUrl={customLogoUrl}
-            logoScale={logoScale}
-            subtextScale={subtextScale}
+            logoScale={Math.max(0.7, Math.min(1.4, logoScale))}
           />
         </div>
 
