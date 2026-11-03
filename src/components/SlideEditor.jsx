@@ -37,9 +37,9 @@ export default function SlideEditor({
   const currentSlide = slides[activeSlideIndex] || slides[0];
 
   const themes = [
-    { id: 'cream', name: 'Artse Krem (Açık)', bg: 'bg-[#FBF9F4]', border: 'border-amber-200', text: 'text-slate-900' },
-    { id: 'navy', name: 'Artse Lacivert (Resmi)', bg: 'bg-[#001A3F]', border: 'border-blue-900', text: 'text-white' },
-    { id: 'anthracite', name: 'Quiet Luxury (Füme)', bg: 'bg-[#0D1117]', border: 'border-slate-700', text: 'text-slate-100' },
+    { id: 'cream', name: 'Krem (Açık #FAF9F6)', bg: 'bg-[#FAF9F6]', border: 'border-slate-300', text: 'text-slate-900' },
+    { id: 'navy', name: 'Lacivert (Derin #00194C)', bg: 'bg-[#00194C]', border: 'border-blue-900', text: 'text-white' },
+    { id: 'anthracite', name: 'Kart Laciverti (#003E73)', bg: 'bg-[#003E73]', border: 'border-blue-700', text: 'text-white' },
   ];
 
   const fontOptions = [
@@ -148,13 +148,16 @@ export default function SlideEditor({
                     <span
                       className={`w-2 h-2 rounded-full ${
                         slide.theme === 'cream'
-                          ? 'bg-[#FBF9F4]'
+                          ? 'bg-[#FAF9F6]'
                           : slide.theme === 'navy'
-                          ? 'bg-[#001A3F]'
-                          : 'bg-slate-600'
+                          ? 'bg-[#00194C]'
+                          : 'bg-[#003E73]'
                       }`}
                     />
                     <span>{idx + 1}</span>
+                    {slide.isCopy && (
+                      <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1 rounded">Kopya</span>
+                    )}
                   </button>
                 );
               })}
@@ -448,31 +451,33 @@ export default function SlideEditor({
               </div>
             )}
 
-            {/* Arka Plan Görseli */}
-            <div>
-              <label className="flex items-center gap-1.5 text-xs font-medium text-slate-300 mb-1">
-                <ImageIcon className="w-3.5 h-3.5 text-[#F05A28]" />
-                <span>Arka Plan Görseli (Opsiyonel)</span>
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={currentSlide.image || ''}
-                  onChange={(e) => updateActiveSlide('image', e.target.value)}
-                  placeholder="Görsel URL veya dosya"
-                  className="flex-1 px-3 py-1.5 text-xs bg-slate-900 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#F05A28]"
-                />
-                <label className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 rounded-lg cursor-pointer border border-slate-700 transition flex items-center">
-                  <span>Seç</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
+            {/* F3 Foto Kapak için Fotoğraf Alanı (Yalnız F3 Kapakta aktif, diğer düzenlerde metin fotoğraf üstüne binmez) */}
+            {currentSlide.layoutType === 'f3_cover' && (
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-medium text-slate-300 mb-1">
+                  <ImageIcon className="w-3.5 h-3.5 text-[#F05A28]" />
+                  <span>F3 Kapak Fotoğrafı (Üst 520px Kadraj)</span>
                 </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={currentSlide.image || ''}
+                    onChange={(e) => updateActiveSlide('image', e.target.value)}
+                    placeholder="Örn: /bd92131b-9ef5-4341-911a-9dfd76d3e9a1.jpg"
+                    className="flex-1 px-3 py-1.5 text-xs bg-slate-900 border border-slate-700/80 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#F05A28]"
+                  />
+                  <label className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 rounded-lg cursor-pointer border border-slate-700 transition flex items-center">
+                    <span>Seç</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -546,7 +551,7 @@ export default function SlideEditor({
             />
           </div>
 
-          {/* 4. Alt Metin Font Boyutu Slider */}
+          {/* 4. Alt Metin Font Boyutu Slider (Min 32px kuralı) */}
           <div>
             <div className="flex justify-between items-center text-xs font-medium text-slate-300 mb-1">
               <span>Açıklama Metin Boyutu</span>
@@ -554,8 +559,8 @@ export default function SlideEditor({
             </div>
             <input
               type="range"
-              min="20"
-              max="38"
+              min="32"
+              max="40"
               step="1"
               value={designConfig.subtitleFontSize}
               onChange={(e) => updateDesignConfig('subtitleFontSize', Number(e.target.value))}

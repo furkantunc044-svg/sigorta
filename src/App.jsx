@@ -217,10 +217,10 @@ export default function App() {
     const newSlide = {
       id: 'slide-' + Date.now(),
       theme: nextTheme,
-      category: slides[activeSlideIndex]?.category || 'SİGORTA SÖZLÜĞÜ',
+      category: slides[activeSlideIndex]?.category || 'SİGORTA REHBERİ',
       preheading: '',
-      title: 'Yeni Başlık',
-      subtitle: 'Bu alana kurumsal içerik metninizi yazabilirsiniz.',
+      title: '', // Boş başlık, placeholder olarak gösterilir
+      subtitle: '', // Boş açıklama
       highlightText: '',
       layoutType: 'standard',
       image: ''
@@ -234,7 +234,7 @@ export default function App() {
     const clone = {
       ...target,
       id: 'slide-' + Date.now(),
-      title: target.title + ' (Kopya)'
+      isCopy: true // Editör tarafında 'Kopya' rozeti göstermek için; karta basılmaz
     };
     const updated = [...slides];
     updated.splice(index + 1, 0, clone);
@@ -270,13 +270,48 @@ export default function App() {
     }
   };
 
+  // Placeholder kontrolü: boş veya varsayılan yer tutucular dışa aktarılmasın
+  const checkPlaceholders = (slideList = slides) => {
+    const invalidItems = [];
+    slideList.forEach((s, idx) => {
+      const slideNum = idx + 1;
+      const title = (s.title || '').trim();
+      if (!title || title === 'Yeni Başlık' || title === 'Başlık Metni') {
+        invalidItems.push(`Slayt #${slideNum}: Başlık boş veya yer tutucu ("${title || 'Boş'}")`);
+      }
+      if (s.layoutType === 'list') {
+        const items = Array.isArray(s.listItems) ? s.listItems : (s.listItems || '').split('\n');
+        const hasPlaceholder = items.some(item => !item.trim() || item.startsWith('Madde '));
+        if (hasPlaceholder || items.length === 0) {
+          invalidItems.push(`Slayt #${slideNum}: Maddeler eksik veya varsayılan yer tutucu ("Madde 1/2/3")`);
+        }
+      } else {
+        const sub = (s.subtitle || '').trim();
+        if (!sub || sub === 'Bu alana kurumsal içerik metninizi yazabilirsiniz.') {
+          invalidItems.push(`Slayt #${slideNum}: Gövde metni boş veya yer tutucu`);
+        }
+      }
+    });
+    return invalidItems;
+  };
+
   // Export handlers
   const handleExportCSV = () => {
+    const errors = checkPlaceholders();
+    if (errors.length > 0) {
+      alert('Dışa aktarma engellendi! Lütfen yer tutucu alanları doldurun:\n\n• ' + errors.join('\n• '));
+      return;
+    }
     exportToCanvaCSV(slides, `artse_canva_bulk_${Date.now()}.csv`);
     showToast('Canva Bulk Create CSV indirildi!');
   };
 
   const handleExportPNG = async () => {
+    const errors = checkPlaceholders([slides[activeSlideIndex]]);
+    if (errors.length > 0) {
+      alert('PNG indirme engellendi! Lütfen slaytı tamamlayın:\n\n• ' + errors.join('\n• '));
+      return;
+    }
     try {
       setIsExporting(true);
       const filename = `artse_slayt_${activeSlideIndex + 1}_${Date.now()}.png`;
@@ -291,6 +326,11 @@ export default function App() {
   };
 
   const handleExportSVG = async () => {
+    const errors = checkPlaceholders([slides[activeSlideIndex]]);
+    if (errors.length > 0) {
+      alert('SVG indirme engellendi! Lütfen slaytı tamamlayın:\n\n• ' + errors.join('\n• '));
+      return;
+    }
     try {
       setIsExporting(true);
       const filename = `artse_slayt_${activeSlideIndex + 1}_${Date.now()}.svg`;
@@ -305,6 +345,11 @@ export default function App() {
   };
 
   const handleExportAllPNG = async () => {
+    const errors = checkPlaceholders();
+    if (errors.length > 0) {
+      alert('Tümünü indirme engellendi! Yer tutucu alanları doldurun:\n\n• ' + errors.join('\n• '));
+      return;
+    }
     try {
       setIsExporting(true);
       const originalIndex = activeSlideIndex;

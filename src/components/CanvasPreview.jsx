@@ -51,18 +51,19 @@ const CanvasPreview = forwardRef(({
       bg: '#FAF9F6', // Off-white/cream paper
       headerText: '#00194C',
       divider: 'rgba(0, 25, 76, 0.12)',
-      preheading: '#F37121',
+      preheading: '#B45115', // Brand compliant accessible dark orange (4.83:1 on cream)
       title: '#00194C',
       subtitle: '#334E68',
       listItemText: '#00194C',
       listDivider: 'rgba(0, 25, 76, 0.12)',
       footerWeb: '#00194C',
-      logoVariant: 'light', // light variant uses artse-official-light.png on white
+      logoVariant: 'light', // artse-official-light.png on white/cream
       badgeColor: '#00194C',
       ctaBg: '#F37121',
-      ctaText: '#FFFFFF',
-      statNumber: '#F37121',
-      statDesc: '#334E68'
+      ctaText: '#00194C', // Dark navy text on orange background (accessible)
+      statNumber: '#B45115', // Accessible dark orange for numbers on cream
+      statDesc: '#334E68',
+      highlightColor: '#B45115'
     },
     navy: {
       bg: '#00194C', // Exact deep navy
@@ -74,15 +75,16 @@ const CanvasPreview = forwardRef(({
       listItemText: '#FFFFFF',
       listDivider: 'rgba(255, 255, 255, 0.14)',
       footerWeb: '#B3CCFF', // Light blue URL
-      logoVariant: 'dark', // dark variant uses artse-official-dark.png on navy
+      logoVariant: 'dark', // artse-official-dark.png on navy
       badgeColor: '#B3CCFF',
       ctaBg: '#F37121',
-      ctaText: '#FFFFFF',
+      ctaText: '#00194C', // Dark navy text on orange button
       statNumber: '#F8AB7C', // Peach accent number on dark
-      statDesc: '#B3CCFF'
+      statDesc: '#B3CCFF',
+      highlightColor: '#F8AB7C'
     },
     anthracite: {
-      bg: '#003E73', // Secondary brand blue
+      bg: '#003E73', // Secondary brand blue (Kart Laciverti)
       headerText: '#B3CCFF',
       divider: 'rgba(255, 255, 255, 0.14)',
       preheading: '#F8AB7C',
@@ -94,9 +96,10 @@ const CanvasPreview = forwardRef(({
       logoVariant: 'dark',
       badgeColor: '#B3CCFF',
       ctaBg: '#F37121',
-      ctaText: '#FFFFFF',
+      ctaText: '#00194C',
       statNumber: '#F8AB7C',
-      statDesc: '#B3CCFF'
+      statDesc: '#B3CCFF',
+      highlightColor: '#F8AB7C'
     }
   };
 
@@ -116,7 +119,7 @@ const CanvasPreview = forwardRef(({
 
     return parts.map((part, i) => 
       regex.test(part) ? (
-        <span key={i} className="font-semibold" style={{ color: accentLineColor }}>
+        <span key={i} className="font-semibold" style={{ color: currentTheme.highlightColor || accentLineColor }}>
           {part}
         </span>
       ) : (
@@ -142,7 +145,7 @@ const CanvasPreview = forwardRef(({
       }}
       className="relative flex flex-col justify-between px-[85px] pt-[56px] pb-0 select-none overflow-hidden transition-colors duration-300"
     >
-      {/* F3 Fotoğraflı Kart: Üst 520 px Tam Genişlik Kadraj */}
+      {/* F3 Fotoğraflı Kart: Üst 520 px Tam Genişlik Kadraj (Metin fotoğrafın üstüne binmez) */}
       {isF3Cover && slide.image && (
         <div 
           className="absolute top-0 left-0 w-full h-[520px] overflow-hidden pointer-events-none"
@@ -154,14 +157,6 @@ const CanvasPreview = forwardRef(({
             style={{ objectPosition: '50% 42%' }}
           />
         </div>
-      )}
-
-      {/* Background Graphic Overlay if image specified (standart kartlar için) */}
-      {!isF3Cover && slide.image && (
-        <div 
-          className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-20 mix-blend-luminosity"
-          style={{ backgroundImage: `url(${slide.image})` }}
-        />
       )}
 
       {/* 1. TOP HEADER SECTION */}
@@ -194,13 +189,16 @@ const CanvasPreview = forwardRef(({
 
           {showSlideNumber && totalSlides > 1 && (
             <div 
-              className="text-[20px] font-semibold tracking-wider px-3.5 py-1 rounded-full font-mono"
+              className="px-3.5 py-1 rounded-full"
               style={{ 
                 color: currentTheme.headerText, 
-                backgroundColor: currentTheme.divider 
+                backgroundColor: currentTheme.divider,
+                fontFamily: `'${subtitleFont}', sans-serif`,
+                fontSize: '29px',
+                fontWeight: 700
               }}
             >
-              {String(currentSlideIndex + 1).padStart(2, '0')} / {String(totalSlides).padStart(2, '0')}
+              {currentSlideIndex + 1} / {totalSlides}
             </div>
           )}
         </div>
@@ -211,10 +209,10 @@ const CanvasPreview = forwardRef(({
         {/* Preheading (Örn: GENİŞLETİLMİŞ KASKO, SIRADAKİ ADIM, COĞRAFİ SINIR) */}
         {slide.preheading && (
           <div 
-            className="font-bold uppercase tracking-[0.16em] mb-4"
+            className="font-bold uppercase tracking-[0.1em] mb-4"
             style={{ 
               color: currentTheme.preheading,
-              fontSize: '25px',
+              fontSize: '29px',
               fontFamily: `'${subtitleFont}', sans-serif`
             }}
           >
@@ -253,19 +251,26 @@ const CanvasPreview = forwardRef(({
               <div 
                 key={idx} 
                 className="flex items-center gap-6 pb-4"
-                style={{ borderBottom: `1px solid ${currentTheme.listDivider}` }}
+                style={{ borderBottom: `1.5px solid ${currentTheme.listDivider}` }}
               >
                 <span 
-                  className="font-bold text-[30px] font-sans w-8 flex-shrink-0"
-                  style={{ color: currentTheme.preheading }}
+                  className="w-8 flex-shrink-0"
+                  style={{ 
+                    color: currentTheme.preheading,
+                    fontFamily: `'${subtitleFont}', sans-serif`,
+                    fontWeight: 700,
+                    fontSize: '34px'
+                  }}
                 >
                   {idx + 1}
                 </span>
                 <span 
-                  className="text-[27px] font-medium leading-snug"
+                  className="leading-snug"
                   style={{ 
                     color: currentTheme.listItemText,
-                    fontFamily: `'${subtitleFont}', sans-serif`
+                    fontFamily: `'${subtitleFont}', sans-serif`,
+                    fontSize: '34px',
+                    fontWeight: 500
                   }}
                 >
                   {item}
@@ -280,7 +285,7 @@ const CanvasPreview = forwardRef(({
               style={{ 
                 color: currentTheme.subtitle,
                 fontFamily: `'${subtitleFont}', sans-serif`,
-                fontSize: `${subtitleFontSize}px`,
+                fontSize: `${Math.max(subtitleFontSize, 32)}px`,
                 lineHeight: subtitleLineHeight,
                 fontWeight: subtitleWeight
               }}
@@ -300,10 +305,12 @@ const CanvasPreview = forwardRef(({
                   {slide.stat1Number || '%100'}
                 </div>
                 <div 
-                  className="font-normal text-[30px] leading-[1.38]"
+                  className="leading-[1.40]"
                   style={{ 
                     color: currentTheme.statDesc,
-                    fontFamily: `'${subtitleFont}', sans-serif`
+                    fontFamily: `'${subtitleFont}', sans-serif`,
+                    fontSize: '32px',
+                    fontWeight: 400
                   }}
                 >
                   {slide.stat1Text || 'Tam kapsamlı teminat ve onarım güvencesi'}
@@ -326,10 +333,12 @@ const CanvasPreview = forwardRef(({
                   {slide.stat2Number || '7/24'}
                 </div>
                 <div 
-                  className="font-normal text-[30px] leading-[1.38]"
+                  className="leading-[1.40]"
                   style={{ 
                     color: currentTheme.statDesc,
-                    fontFamily: `'${subtitleFont}', sans-serif`
+                    fontFamily: `'${subtitleFont}', sans-serif`,
+                    fontSize: '32px',
+                    fontWeight: 400
                   }}
                 >
                   {slide.stat2Text || 'Kesintisiz yol yardım ve asistans desteği'}
@@ -344,7 +353,7 @@ const CanvasPreview = forwardRef(({
               style={{ 
                 color: currentTheme.subtitle,
                 fontFamily: `'${subtitleFont}', sans-serif`,
-                fontSize: `${subtitleFontSize}px`,
+                fontSize: `${Math.max(subtitleFontSize, 32)}px`,
                 lineHeight: subtitleLineHeight,
                 fontWeight: subtitleWeight
               }}
@@ -355,7 +364,7 @@ const CanvasPreview = forwardRef(({
             {slide.layoutType === 'cta' && (
               <div className="pt-3">
                 <div 
-                  className="inline-block px-10 py-5 rounded-lg font-bold text-[27px] tracking-wide shadow-md"
+                  className="inline-block px-10 py-5 rounded-[4px] font-bold text-[32px] tracking-wide"
                   style={{ 
                     backgroundColor: currentTheme.ctaBg,
                     color: currentTheme.ctaText,
